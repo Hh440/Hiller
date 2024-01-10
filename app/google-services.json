@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "897147467645",
+    "project_id": "hill-752af",
+    "storage_bucket": "hill-752af.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:897147467645:android:6e0d22d5d25dcf1c38fe14",
+        "android_client_info": {
+          "package_name": "com.example.hill"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWvxSzeBBMzmJ7fQgQl1YHqkVS-1DmYsQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
