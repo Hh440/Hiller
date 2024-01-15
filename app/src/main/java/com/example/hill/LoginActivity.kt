@@ -23,11 +23,12 @@ class LoginActivity : AppCompatActivity() {
            databaseReference=firebaseDatabase.reference.child("users")
 
            binding.loginButton.setOnClickListener {
-               val loginUsername = binding.loginUsername.text.toString()
-               val loginPassword= binding.loginPassword.text.toString()
 
-               if(loginUsername.isNotEmpty() && loginPassword.isNotEmpty()){
-                   login(loginUsername,loginPassword)
+               val loginPassword= binding.loginPassword.text.toString()
+               val loginMobileNumber = binding.loginNumber.text.toString()
+
+               if( loginMobileNumber.isNotEmpty() && loginPassword.isNotEmpty()){
+                   login(loginMobileNumber,loginPassword)
                }else{
                    Toast.makeText(this@LoginActivity,"All fields are mandentory",Toast.LENGTH_SHORT).show()
                }
@@ -39,33 +40,59 @@ class LoginActivity : AppCompatActivity() {
            }
 
     }
-
-
-
-    private fun login(username:String,password:String){
-        databaseReference.orderByChild("username").equalTo(username).addListenerForSingleValueEvent(object:ValueEventListener{
-
+    private fun login(number: String, password: String) {
+        databaseReference.child(number).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if(snapshot.exists()){
-                    for(userSnapshot in snapshot.children){
-                        val userData = userSnapshot.getValue(UserData::class.java)
+                if (snapshot.exists()) {
+                    val userData = snapshot.getValue(UserData::class.java)
 
-                        if(userData != null && userData.password==password){
-                            Toast.makeText(this@LoginActivity,"Login Successful",Toast.LENGTH_SHORT).show()
-                            startActivity(Intent(this@LoginActivity,MainActivity::class.java))
-                            finish()
-                            return
-                        }
+                    if (userData != null && userData.password == password) {
+                        val userId = number
+                        checkDetailsAndNavigate(userId)
+                    } else {
+                        Toast.makeText(this@LoginActivity, "Invalid password", Toast.LENGTH_SHORT).show()
                     }
-
+                } else {
+                    Toast.makeText(this@LoginActivity, "User not found", Toast.LENGTH_SHORT).show()
                 }
-
-                Toast.makeText(this@LoginActivity,"Login Failed",Toast.LENGTH_SHORT).show()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(this@LoginActivity,"Database Error: ${databaseError.message}",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@LoginActivity, "Database Error: ${databaseError.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
+
+
+    private fun checkDetailsAndNavigate(userId: String?) {
+        if (userId != null) {
+            databaseReference.child(userId).child("details").addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        // Details exist, navigate to main activity
+                        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                        finish()
+                    } else {
+                        // Details don't exist, navigate to details activity
+                        val detailsIntent = Intent(this@LoginActivity, details::class.java)
+                        detailsIntent.putExtra("userId", userId)
+                        startActivity(detailsIntent)
+                        finish()
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Toast.makeText(this@LoginActivity, "Database Error: ${databaseError.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+        } else {
+            Toast.makeText(this@LoginActivity, "User ID is null", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+
+
+
+
 }

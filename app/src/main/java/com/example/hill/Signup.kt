@@ -21,12 +21,13 @@ class Signup : AppCompatActivity() {
         firebaseDatabase = FirebaseDatabase.getInstance()
         databaseReference= firebaseDatabase.reference.child("users")
 
-        binding.SignupButton.setOnClickListener {
+        binding.signupButton.setOnClickListener {
             val signupUsername = binding.signupUsername.text.toString()
+            val signupNumber = binding.signupNumber.text.toString()
             val signupPassword= binding.signupPassword.text.toString()
 
-            if(signupUsername.isNotEmpty() && signupPassword.isNotEmpty()){
-                signup(signupUsername,signupPassword)
+            if(signupUsername.isNotEmpty() && signupNumber.isNotEmpty() && signupPassword.isNotEmpty()){
+                checkUserExists(signupNumber, signupUsername, signupPassword)
             }else{
                 Toast.makeText(this@Signup,"All fields are mandentory",Toast.LENGTH_SHORT).show()
             }
@@ -44,27 +45,34 @@ class Signup : AppCompatActivity() {
 
     }
 
-    private fun signup(username:String, password:String){
-        databaseReference.orderByChild("username").equalTo(username).addListenerForSingleValueEvent(object:ValueEventListener{
+    private fun checkUserExists(mobileNumber: String, username: String, password: String) {
+        databaseReference.child(mobileNumber).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if(!snapshot.exists()){
-                    val id=databaseReference.push().key
-                    val userData=UserData(id,username,password)
-                    databaseReference.child(id!!).setValue(userData)
-                    Toast.makeText(this@Signup,"Signup Successful",Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this@Signup,LoginActivity::class.java))
-                    finish()
-                }else{
-                    Toast.makeText(this@Signup,"User Already Exist",Toast.LENGTH_SHORT).show()
+                if (snapshot.exists()) {
+                    Toast.makeText(this@Signup, "User with this mobile number already exists", Toast.LENGTH_SHORT).show()
+                } else {
+                    signup(username, password, mobileNumber)
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(this@Signup,"Database Error: ${databaseError.message}",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@Signup, "Database Error: ${databaseError.message}", Toast.LENGTH_SHORT).show()
             }
-
-
         })
+    }
 
+    private fun signup(username: String, password: String, mobileNumber: String) {
+        val userData = UserData(username = username, mobilenumber = mobileNumber, password = password )
+
+        // Use mobile number as the key (ID) when saving to Firebase
+        databaseReference.child(mobileNumber).setValue(userData)
+            .addOnSuccessListener {
+                Toast.makeText(this@Signup, "Signup Successful", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this@Signup, LoginActivity::class.java))
+                finish()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this@Signup, "Failed to sign up", Toast.LENGTH_SHORT).show()
+            }
     }
 }
