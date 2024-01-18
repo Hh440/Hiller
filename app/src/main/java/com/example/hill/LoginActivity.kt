@@ -70,7 +70,9 @@ class LoginActivity : AppCompatActivity() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         // Details exist, navigate to main activity
-                        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                        val mainIntent= Intent(this@LoginActivity, MainActivity::class.java)
+                        mainIntent.putExtra("userId",userId)
+                        startActivity(mainIntent)
                         finish()
                     } else {
                         // Details don't exist, navigate to details activity

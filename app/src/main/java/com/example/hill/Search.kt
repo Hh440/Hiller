@@ -18,16 +18,8 @@ private const val ARG_PARAM2 = "param2"
  */
 class Search : Fragment() {
     // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private var userId: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,13 +39,21 @@ class Search : Fragment() {
          * @return A new instance of fragment Search.
          */
         // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            Search().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        fun newInstance(userId: String?): Search {
+            val fragment = Search()
+            val args = Bundle()
+            args.putString("userId", userId)
+            fragment.arguments = args
+            return fragment
+        }
+
+    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Retrieve userId from arguments
+        userId = arguments?.getString("userId")
+
+        // Now you can use userId in this fragment
     }
 }

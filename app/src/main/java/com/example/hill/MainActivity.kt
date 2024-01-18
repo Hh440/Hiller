@@ -15,14 +15,18 @@ class MainActivity : AppCompatActivity() {
         binding=ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val userId= intent.getStringExtra("userId")
+
+
+        loadFragment(Home.newInstance(userId), false)
+
         binding.bottomNavigationView.setOnNavigationItemSelectedListener {
-            when(it.itemId){
-                R.id.home -> loadFragment(Home(),false)
-                R.id.search -> loadFragment(Search(),false)
-                R.id.profile -> loadFragment(Profile(),false)
+            when (it.itemId) {
+                R.id.home -> loadFragment(Home.newInstance(userId), false)
+                R.id.search -> loadFragment(Search.newInstance(userId), false)
+                R.id.profile -> loadFragment(Profile.newInstance(userId), false)
             }
             true
-
         }
 
 
